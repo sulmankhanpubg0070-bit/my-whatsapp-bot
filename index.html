@@ -2,40 +2,62 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>WhatsApp Messages Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp Live Messages Dashboard</title>
     <style>
-        body { font-family: Arial, sans-serif; background: #f4f4f9; padding: 20px; }
-        .msg-card { background: white; padding: 15px; margin-bottom: 10px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .sender { font-weight: bold; color: #075e54; }
-        .time { font-size: 0.8em; color: gray; float: right; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        h1 { color: #075e54; text-align: center; }
+        .card { background: white; border-radius: 10px; padding: 15px; margin-bottom: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border-left: 5px solid #25d366; }
+        .sender { font-weight: bold; color: #128c7e; font-size: 1.1em; }
+        .text { margin-top: 8px; font-size: 1em; color: #333; }
+        .time { font-size: 0.75em; color: #888; text-align: right; margin-top: 5px; }
+        .status { text-align: center; color: #666; font-style: italic; }
     </style>
 </head>
 <body>
-    <h2>Saved WhatsApp Messages</h2>
-    <div id="messages-container">Loading messages...</div>
+    <div class="container">
+        <h1>📱 WhatsApp Saved Messages</h1>
+        <div id="messages" class="status">Loading messages from MongoDB...</div>
+    </div>
 
     <script>
-        async function fetchMessages() {
+        async function loadMessages() {
             try {
-                // Yahan apna backend API URL likhein jo MongoDB se data la raha ho
                 const response = await fetch('/api/messages');
                 const messages = await response.json();
                 
-                const container = document.getElementById('messages-container');
-                container.innerHTML = '';
+                const container = document.getElementById('messages');
+                if (messages.length === 0) {
+                    container.innerHTML = '<div class="status">Abhi koi message save nahi hua.</div>';
+                    return;
+                }
                 
+                container.innerHTML = '';
                 messages.forEach(msg => {
-                    const div = document.createElement('div');
-                    div.className = 'msg-card';
-                    div.innerHTML = `<span class="sender">${msg.sender}</span>: ${msg.messageText} <span class="time">${new Date(msg.timestamp).toLocaleString()}</span>`;
-                    container.appendChild(div);
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    
+                    const timeStr = new Date(msg.timestamp).toLocaleString();
+                    
+                    card.innerHTML = `
+                        <div class="sender">${msg.sender || 'Unknown'}</div>
+                        <div class="text">${msg.messageText || ''}</div>
+                        <div class="time">${timeStr}</div>
+                    `;
+                    container.appendChild(card);
                 });
-            } catch (err) {
-                document.getElementById('messages-container').innerText = 'Failed to load messages.';
+            } catch (error) {
+                console.error(error);
+                document.getElementById('messages').innerText = 'Messages load karne mein masla aaya.';
             }
         }
-        fetchMessages();
-        setInterval(fetchMessages, 5000); // Har 5 second baad auto-refresh hoga
+
+        // Page load hone par messages dikhayein
+        loadMessages();
+
+        // Har 5 second baad naye messages automatically fetch hongy
+        setInterval(loadMessages, 5000);
     </script>
 </body>
 </html>
