@@ -86,7 +86,10 @@ async function startBot() {
       for (const msg of messages) {
         if (msg.message) {
           const remoteJid = msg.key.remoteJid;
-          const sender = msg.pushName || 'Unknown';
+          
+          // Agar message aapne khud bheja hai toh 'Aap (Me)' show ho, warna doosre ka naam
+          const sender = msg.key.fromMe ? 'Aap (Me)' : (msg.pushName || 'Unknown');
+          
           const messageText = msg.message.conversation || msg.message.extendedTextMessage?.text || '[Media/Other]';
 
           try {
