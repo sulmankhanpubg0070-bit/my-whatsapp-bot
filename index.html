@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WhatsApp Messages Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f4f4f9; padding: 20px; }
+        .msg-card { background: white; padding: 15px; margin-bottom: 10px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .sender { font-weight: bold; color: #075e54; }
+        .time { font-size: 0.8em; color: gray; float: right; }
+    </style>
+</head>
+<body>
+    <h2>Saved WhatsApp Messages</h2>
+    <div id="messages-container">Loading messages...</div>
+
+    <script>
+        async function fetchMessages() {
+            try {
+                // Yahan apna backend API URL likhein jo MongoDB se data la raha ho
+                const response = await fetch('/api/messages');
+                const messages = await response.json();
+                
+                const container = document.getElementById('messages-container');
+                container.innerHTML = '';
+                
+                messages.forEach(msg => {
+                    const div = document.createElement('div');
+                    div.className = 'msg-card';
+                    div.innerHTML = `<span class="sender">${msg.sender}</span>: ${msg.messageText} <span class="time">${new Date(msg.timestamp).toLocaleString()}</span>`;
+                    container.appendChild(div);
+                });
+            } catch (err) {
+                document.getElementById('messages-container').innerText = 'Failed to load messages.';
+            }
+        }
+        fetchMessages();
+        setInterval(fetchMessages, 5000); // Har 5 second baad auto-refresh hoga
+    </script>
+</body>
+</html>
