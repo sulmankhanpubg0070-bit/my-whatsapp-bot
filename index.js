@@ -84,7 +84,7 @@ async function startBot() {
   sock.ev.on('messages.upsert', async ({ messages, type }) => {
     if (type === 'notify') {
       for (const msg of messages) {
-        if (!msg.key.fromMe && msg.message) {
+        if (msg.message) {
           const remoteJid = msg.key.remoteJid;
           const sender = msg.pushName || 'Unknown';
           const messageText = msg.message.conversation || msg.message.extendedTextMessage?.text || '[Media/Other]';
